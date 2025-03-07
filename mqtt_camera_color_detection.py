@@ -58,8 +58,9 @@ def main():
                 print("Detected center at:", center)
                 # Send the detected center via MQTT as a string
                 send_mqtt_message(client, MQTT_TOPIC, str(center))
-            # else:
-            #     print("No color detected")
+            else:
+                print("No color detected")
+                send_mqtt_message(client, MQTT_TOPIC, str((-1,-1)))
             
             # Delay before next frame capture
             time.sleep(1)
