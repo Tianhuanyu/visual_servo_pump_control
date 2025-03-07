@@ -49,6 +49,7 @@ def main():
             # Capture an image from the camera
             image = picam2.capture_array()
             # Convert image from RGB (Picamera2 default) to BGR for OpenCV processing
+            current_image = image.copy()
             image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
             
             # Detect the color center using the shared function
@@ -61,6 +62,9 @@ def main():
             else:
                 print("No color detected")
                 send_mqtt_message(client, MQTT_TOPIC, str((-1,-1)))
+
+            cv2.imshow("Video", current_image)
+            cv2.imshow("Mask", mask)
             
             # Delay before next frame capture
             time.sleep(1)
