@@ -4,11 +4,12 @@ import paho.mqtt.client as mqtt
 MQTT_BROKER = "localhost"   # Replace with your broker address if needed
 MQTT_PORT = 1883
 MQTT_TOPIC = "color/center"
+MQTT_TOPIC2 = "stepper/stepper1/axis/0/servo_speed"
 
 def on_connect(client, userdata, flags, rc):
     print("Connected with result code", rc)
     # Subscribe to the topic once connected
-    client.subscribe(MQTT_TOPIC)
+    client.subscribe(MQTT_TOPIC2)
 
 def on_message(client, userdata, msg):
     print(f"Received message: {msg.payload.decode()} on topic: {msg.topic}")

@@ -8,11 +8,13 @@ import numpy as np
 import paho.mqtt.client as mqtt
 from picamera2 import Picamera2
 from hsv_detection import detect_color_center  # Import the common color detection function
+import json
 
 # MQTT configuration parameters
 MQTT_BROKER = "localhost"  # Change to your MQTT broker address if needed
 MQTT_PORT = 1883
 MQTT_TOPIC = "color/center"
+motorSpeedTopic = "stepper/stepper1/axis/0/servo_speed"
 
 def send_mqtt_message(client, topic, message):
     """
@@ -40,6 +42,14 @@ def main():
     # Allow the camera to warm up
     time.sleep(2)
     
+    # Configure the stepper to use servo mode
+    motorTopic = "stepper/stepper1/axis/0/enable_servo"
+    payload = {'max_speed' : 1000, 'acceleration' : 1000}
+    send_mqtt_message(client, motorTopic, json.dumps(payload))
+    
+
+
+    
     # Define the HSV color range (example values, adjust according to target color)
     lower_hsv = np.array([140, 90, 120])  # e.g., lower bound for red color
     upper_hsv = np.array([159, 150, 186])    # e.g., upper bound for red color
@@ -55,13 +65,18 @@ def main():
             # Detect the color center using the shared function
             center, mask = detect_color_center(image, lower_hsv, upper_hsv)
             
-            if center:
-                print("Detected center at:", center)
+            # Send a test speed
+            
+            motorSpeed = json.dumps({'speed': 1000})
+            send_mqtt_message(client, motorSpeedTopic, motorSpeed)
+            
+            #if center:
+            #    print("Detected center at:", center)
                 # Send the detected center via MQTT as a string
-                send_mqtt_message(client, MQTT_TOPIC, str(center))
-            else:
-                print("No color detected")
-                send_mqtt_message(client, MQTT_TOPIC, str((-1,-1)))
+            #    send_mqtt_message(client, MQTT_TOPIC, str(center))
+            #else:
+            #    print("No color detected")
+            #    send_mqtt_message(client, MQTT_TOPIC, str((-1,-1)))
 
             cv2.imshow("Video", current_image)
             cv2.imshow("Mask", mask)
